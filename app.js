@@ -76,6 +76,8 @@ if (devEnv) app.use(errorHandler());
 routes(app, addon);
 require('ace-abotars')(addon, app);
 
+console.warn('uh');
+
 // Boot the damn thing
 http.createServer(app).listen(port, function(){
   console.log()

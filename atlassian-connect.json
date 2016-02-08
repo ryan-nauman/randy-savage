@@ -1,10 +1,10 @@
 {
-    "key": "weather",
-    "name": "Hello!",
-    "description": "My very first HipChat add-on",
+    "key": "randysavageaf",
+    "name": "Randy Savage af",
+    "description": "Sorry, Steve.",
     "vendor": {
-        "name": "Charlie Awyeah",
-        "url": "https://www.hipchat.com"
+        "name": "WWF",
+        "url": "https://en.wikipedia.org/wiki/World_Wrestling_Federation"
     },
     "links": {
         "self": "{{localBaseUrl}}/atlassian-connect.json",
@@ -12,6 +12,10 @@
     },
     "capabilities": {
         "hipchatApiConsumer": {
+            "avatar": {
+              "url": "{{localBaseUrl}}/img/savage.png",
+              "url@2x": "{{localBaseUrl}}/img/savage@2x.png"
+            },
             "scopes": [
                 "send_notification",
                 "view_room"
@@ -23,12 +27,25 @@
         "configurable": {
              "url": "{{localBaseUrl}}/config"
         },
-        "webhook": {
-            "url": "{{localBaseUrl}}/webhook",
-            "pattern": "^/hello",
+        "webhook": [
+          {
+            "url": "{{localBaseUrl}}/weather",
+            "pattern": "^/weather",
             "event": "room_message",
-            "name": "Hello!"
-        },
+            "name": "Get Weather"
+          },
+          {
+            "url": "{{localBaseUrl}}/spotify",
+            "pattern": "spotify:|spotify.com",
+            "event": "room_message",
+            "name": "Spotify lookup"
+          },
+          {
+            "url": "{{localBaseUrl}}/enter",
+            "event": "room_enter",
+            "name": "Welcome"
+          }
+        ],
         "glance": [
             {
                "name": {
@@ -38,8 +55,8 @@
                "key": "weather.glance",
                "target": "weather.sidebar",
                "icon": {
-                   "url": "{{localBaseUrl}}/img/logo.png",
-                   "url@2x": "{{localBaseUrl}}/img/logo.png"
+                   "url": "{{localBaseUrl}}/img/savage.png",
+                   "url@2x": "{{localBaseUrl}}/img/savage@2x.png"
                }
             }
         ],

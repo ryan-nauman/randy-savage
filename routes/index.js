@@ -132,7 +132,7 @@ module.exports = function (app, addon) {
         }
       };
       var msg = '<b>' + card.title + '</b>: ' + card.description;
-      var opts = {'options': {'color': 'yellow'}};
+      var opts = {'options': {'color': 'green'}};
       hipchat.sendMessage(req.clientInfo, req.identity.roomId, msg, opts, card);
       res.json({status: "ok"});
     }
@@ -140,15 +140,122 @@ module.exports = function (app, addon) {
 
   // This is an example route to handle an incoming webhook
   // https://developer.atlassian.com/hipchat/guide/webhooks
-  app.post('/webhook',
+  app.post('/weather',
     addon.authenticate(),
-    function(req, res) {
-      hipchat.sendMessage(req.clientInfo, req.context.item.room.id, 'pong')
-        .then(function(data){
-          res.sendStatus(200);
+    function (req, res) {
+      console.log('weather?');
+      var command = req.body.item.message.message;
+      var api_key = "e1ddcefed0b9450e";
+      var html = "";
+      var options = {};
+      command = parseCommand(command);
+      if (command.command.trim().toLowerCase() === 'map') {
+        html = "<img src='http://api.wunderground.com/api/" + api_key + "/animatedradar/q/" + command.state + "/" + command.city + ".gif?width=280&height=280&newmaps=1'><br>" + command.city.replace("_", " ") + ", " + command.state;
+      } else {
+        html = "Weather command not recognized.";
+        options = {
+          options: {
+            color: "red"
+          }
+        };
+      }
+      hipchat.sendMessage(req.clientInfo, req.context.item.room.id, html, options)
+        .then(function (data) {
+          res.send(200);
         });
     }
   );
+
+  // This is an example route to handle an incoming webhook
+  // https://developer.atlassian.com/hipchat/guide/webhooks
+  app.post('/enter',
+    addon.authenticate(),
+    function (req, res) {
+      hipchat.sendMessage(req.clientInfo, req.context.item.room.id, req.context.item.sender.name + ', I hate yer guts!')
+        .then(function (data) {
+          res.send(200);
+        });
+    }
+  );
+
+  app.post('/spotify',
+    addon.authenticate(),
+    function (req, res) {
+      var spotifyUri = req.body.item.message.message;
+      spotifyUri = parseSpotify(spotifyUri);
+      http(spotifyUri, function (err, resp, body) {
+        var data, msg, track, album;
+        if (!err) {
+          data = JSON.parse(body);
+          console.warn(typeof resp);
+          switch (data.type) {
+            case 'track':
+              track = data.artists[0].name + ' - ' + data.name;
+              album = '(' + data.album.name + ')';
+              msg = 'Track: ' + track + ' ' + album;
+              break;
+            case 'album':
+              msg = 'Album: ' + data.artists[0].name + ' - ' + data.name + '(' + data.release_date.substr(0, 4) + ')';
+              break;
+            case 'artist':
+              msg = 'Artist: ' + data.name;
+              break;
+          }
+          console.warn(msg);
+          hipchat.sendMessage(req.clientInfo, req.context.item.room.id, msg)
+            .then(function (data) {
+              res.send(200);
+            });
+        } else {
+          console.warn('errin it');
+          hipchat.sendMessage(req.clientInfo, req.context.item.room.id, 'Spotify error, oh yeah')
+            .then(function (data) {
+              res.send(200);
+            });
+        }
+      });
+    }
+  );
+
+  function parseCommand(cmd) {
+    var fullCommand = cmd.substr(cmd.indexOf(" ") + 1, cmd.length - 1);
+    var command = fullCommand.substr(0, fullCommand.indexOf(" ") + 1);
+    var cityState = fullCommand.substr(fullCommand.indexOf(command) + command.length);
+    var city = cityState.substr(0, cityState.indexOf(", "));
+    cityState = cityState.substr(cityState.indexOf(city) + city.length  + 2);
+    city = city.replace(" ", "_");
+    var state = cityState.substr(cityState.indexOf(" ") + 1);
+    return {
+      command: command,
+      city: city,
+      state: state
+    };
+  }
+
+  function parseSpotify(cmd) {
+    var matched = cmd.match(/(?:(http|https):\/\/(open|play).spotify.com\/(track|album|artist)\/|spotify:(track|album|artist):)\S+/),
+        uri = 'https://api.spotify.com/v1/',
+        matchForLookup;
+    try {
+      matchForLookup = matched[0].match(/(track|album|artist)[\/\:](\S+)/);
+      switch (matchForLookup[1]) {
+        case 'track':
+          uri += 'tracks/';
+          break;
+        case 'album':
+          uri += 'albums/';
+          break;
+        case 'artist':
+          uri += 'artists/';
+          break;
+      }
+      uri += matchForLookup[2];
+      return uri;
+    } catch (e) {
+      console.warn(e);
+      return null;
+    }
+  }
 
   // Notify the room that the add-on was installed. To learn more about
   // Connect's install flow, check out:
