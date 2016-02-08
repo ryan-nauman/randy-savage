@@ -166,18 +166,6 @@ module.exports = function (app, addon) {
     }
   );
 
-  // This is an example route to handle an incoming webhook
-  // https://developer.atlassian.com/hipchat/guide/webhooks
-  app.post('/enter',
-    addon.authenticate(),
-    function (req, res) {
-      hipchat.sendMessage(req.clientInfo, req.context.item.room.id, req.context.item.sender.name + ', I hate yer guts!')
-        .then(function (data) {
-          res.send(200);
-        });
-    }
-  );
-
   app.post('/spotify',
     addon.authenticate(),
     function (req, res) {

@@ -39,11 +39,6 @@
             "pattern": "spotify:|spotify.com",
             "event": "room_message",
             "name": "Spotify lookup"
-          },
-          {
-            "url": "{{localBaseUrl}}/enter",
-            "event": "room_enter",
-            "name": "Welcome"
           }
         ],
         "glance": [
