@@ -29,12 +29,6 @@
         },
         "webhook": [
           {
-            "url": "{{localBaseUrl}}/weather",
-            "pattern": "^/weather",
-            "event": "room_message",
-            "name": "Get Weather"
-          },
-          {
             "url": "{{localBaseUrl}}/spotify",
             "pattern": "spotify:|spotify.com",
             "event": "room_message",
@@ -86,16 +80,6 @@
                     "height": "200px"
                   }
                 }
-            }
-        ],
-        "action": [
-            {
-                "key": "weather.action",
-                "name": {
-                    "value": "Launch Hello Dialog!"
-                },
-                "target": "weather.dialog",
-                "location": "hipchat.input.action"
             }
         ]
     }
